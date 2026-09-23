@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#050914">
+<title>OSAMA ALKHLILI</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#050914;--blue:#3aa8ff;--cyan:#65f3ff;--white:#f5f8ff;--muted:#9baac2;--glass:rgba(12,20,36,.62)}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--white)}
+body{cursor:default}
+canvas{position:fixed;inset:0;z-index:0}
+#glow{position:fixed;width:330px;height:330px;border-radius:50%;pointer-events:none;z-index:1;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(55,173,255,.16),rgba(55,173,255,.04) 35%,transparent 70%);filter:blur(4px)}
+.overlay{position:fixed;inset:0;z-index:2;background:radial-gradient(circle at 50% 40%,transparent 0,rgba(2,6,15,.16) 45%,rgba(2,5,12,.72) 100%);pointer-events:none}
+.menu-btn{position:fixed;right:22px;top:20px;width:52px;height:52px;border:1px solid rgba(255,255,255,.15);border-radius:15px;background:rgba(7,14,28,.55);backdrop-filter:blur(14px);z-index:20;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;cursor:pointer;box-shadow:0 0 30px rgba(0,0,0,.25);transition:.35s}
+.menu-btn span{width:23px;height:2px;border-radius:2px;background:#fff;transition:.4s}
+.menu-btn.open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+.menu-btn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.menu-btn.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+.menu{position:fixed;right:18px;top:82px;width:min(340px,calc(100vw - 36px));padding:12px;border:1px solid rgba(255,255,255,.12);background:rgba(5,11,23,.78);backdrop-filter:blur(22px);border-radius:22px;z-index:19;transform:translateY(-18px) scale(.96);opacity:0;pointer-events:none;transition:.35s}
+.menu.show{transform:none;opacity:1;pointer-events:auto}
+.menu a,.menu button{width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:15px;border-radius:14px;font-size:15px;cursor:pointer;transition:.25s}
+.menu a:hover,.menu button:hover{background:rgba(75,177,255,.12);transform:translateX(4px)}
+.menu small{display:block;color:var(--muted);padding:8px 15px 5px}
+.page{position:relative;z-index:3;width:100%;height:100%;display:none;align-items:center;justify-content:center;padding:30px}
+.page.active{display:flex}
+.home{text-align:center;flex-direction:column}
+.badge{font-size:12px;letter-spacing:5px;color:#a8c8e8;border:1px solid rgba(111,191,255,.2);padding:8px 14px;border-radius:999px;background:rgba(55,150,255,.06);animation:fadeUp .8s both}
+h1{font-size:clamp(42px,9vw,100px);letter-spacing:clamp(3px,1vw,12px);margin:22px 0 8px;font-weight:800;background:linear-gradient(100deg,#fff,#75d8ff,#fff);background-size:220%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fadeUp 1s .15s both,shine 5s linear infinite}
+.code{font-size:clamp(16px,3vw,24px);letter-spacing:8px;color:#78bfff;margin-bottom:30px;animation:fadeUp 1s .3s both}
+.sub{color:var(--muted);font-size:15px;animation:fadeUp 1s .45s both}
+.cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:32px;animation:fadeUp 1s .6s both}
+.card{min-width:150px;padding:17px 20px;border-radius:18px;border:1px solid rgba(255,255,255,.11);background:rgba(11,20,35,.5);backdrop-filter:blur(12px);color:#fff;text-decoration:none;cursor:pointer;transition:.25s;box-shadow:0 8px 35px rgba(0,0,0,.2)}
+.card:hover{transform:translateY(-5px);border-color:rgba(83,194,255,.55);box-shadow:0 0 35px rgba(55,173,255,.13)}
+.card:active,.action:active{transform:scale(.94)}
+.icon{font-size:22px;display:block;margin-bottom:7px}.label{font-size:13px;color:#cbd7e8}
+.panel{width:min(760px,100%);text-align:center;padding:40px 25px;border-radius:30px;border:1px solid rgba(255,255,255,.12);background:var(--glass);backdrop-filter:blur(20px);box-shadow:0 20px 80px rgba(0,0,0,.35);animation:panelIn .55s both}
+.panel h2{font-size:clamp(32px,7vw,65px);margin:12px 0;color:#fff}
+.panel p{color:var(--muted);line-height:1.7}
+.id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:clamp(25px,7vw,55px);letter-spacing:4px;color:#65f3ff;text-shadow:0 0 25px rgba(101,243,255,.35);margin:28px 0;word-break:break-all}
+.action{display:inline-block;padding:13px 20px;border-radius:13px;background:linear-gradient(135deg,#168bff,#54d7ff);color:#03101c;font-weight:800;text-decoration:none;border:0;cursor:pointer;transition:.2s}
+.back{position:fixed;left:20px;top:20px;z-index:20;border:1px solid rgba(255,255,255,.14);background:rgba(7,14,28,.55);color:#fff;border-radius:13px;padding:12px 15px;backdrop-filter:blur(14px);cursor:pointer}
+.contact-link{font-size:clamp(17px,4vw,27px);word-break:break-all;color:#76d8ff;margin:22px 0}
+.pubg{background:radial-gradient(circle at 50% 50%,rgba(255,183,64,.09),transparent 40%)}
+.instagram{background:radial-gradient(circle at 50% 50%,rgba(226,65,145,.09),transparent 40%)}
+.whatsapp{background:radial-gradient(circle at 50% 50%,rgba(42,210,105,.08),transparent 40%)}
+.corner{position:fixed;left:22px;bottom:18px;color:#63738c;font-size:11px;z-index:4;letter-spacing:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes panelIn{from{opacity:0;transform:scale(.94) translateY(15px)}to{opacity:1;transform:none}}
+@keyframes shine{to{background-position:220% center}}
+@media(max-width:600px){.menu-btn{right:14px;top:14px}.page{padding:18px}.panel{padding:30px 18px}.cards{gap:9px}.card{min-width:135px;padding:14px}.corner{left:12px}}
+
+.games-panel{width:min(1050px,100%);max-height:86vh;overflow:auto;padding:32px 22px;border-radius:30px;border:1px solid rgba(255,255,255,.12);background:rgba(5,11,23,.72);backdrop-filter:blur(20px);box-shadow:0 20px 80px rgba(0,0,0,.35);animation:panelIn .55s both}
+.games-title{text-align:center;margin:10px 0 8px;font-size:clamp(30px,6vw,58px)}
+.games-sub{text-align:center;color:var(--muted);margin-bottom:25px}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.game{padding:16px;border:1px solid rgba(255,255,255,.09);border-radius:17px;background:rgba(255,255,255,.035);transition:.25s;animation:fadeUp .65s both}
+.game:hover{transform:translateY(-4px) scale(1.01);border-color:rgba(75,190,255,.4);box-shadow:0 0 25px rgba(50,160,255,.08)}
+.game b{display:block;font-size:15px;margin-bottom:5px}.game span{font-size:12px;color:var(--muted)}
+.games-panel::-webkit-scrollbar{width:7px}.games-panel::-webkit-scrollbar-thumb{background:rgba(100,190,255,.35);border-radius:10px}
+@media(max-width:600px){.games-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.game{padding:13px}.games-panel{padding:25px 13px}}
+
+.game{position:relative;overflow:visible;cursor:pointer}
+.game b,.game span{position:relative;z-index:2}
+.game-preview{position:fixed;z-index:50;pointer-events:none;width:260px;height:146px;border-radius:16px;overflow:hidden;opacity:0;transform:scale(.92) translateY(8px);transition:opacity .16s ease,transform .16s ease;box-shadow:0 18px 55px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.22);background:#07101e}
+.game-preview.show{opacity:1;transform:scale(1) translateY(0)}
+.game-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.game-preview .preview-title{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 10px;font-size:13px;font-weight:800;background:linear-gradient(transparent,rgba(0,0,0,.9));text-shadow:0 1px 5px #000}
+@media(max-width:600px){
+  .game-preview{width:210px;height:118px}
+}
+
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas><div id="glow"></div><div class="overlay"></div>
+
+<button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+<nav class="menu" id="menu">
+<small>OSAMA ALKHLILI</small>
+<button data-page="home">⌂ &nbsp; Home</button>
+<button data-page="instagram">◎ &nbsp; Instagram</button>
+<button data-page="whatsapp">◉ &nbsp; WhatsApp</button>
+<button data-page="pubg">🎮 &nbsp; PUBG ID</button>
+<button data-page="games">🕹️ &nbsp; Games I Completed</button>
+</nav>
+
+<main id="home" class="page home active">
+<div class="badge">PERSONAL WEBSITE</div>
+<h1>OSAMA ALKHLILI</h1>
+<div class="code">OMK 1120</div>
+<div class="sub">Welcome to my digital space</div>
+<div class="cards">
+<button class="card" data-page="instagram"><span class="icon">◎</span><span class="label">Instagram</span></button>
+<button class="card" data-page="whatsapp"><span class="icon">◉</span><span class="label">WhatsApp</span></button>
+<button class="card" data-page="pubg"><span class="icon">🎮</span><span class="label">PUBG ID</span></button>
+</div>
+</main>
+
+<section id="instagram" class="page instagram">
+<button class="back" data-page="home">← Back</button>
+<div class="panel">
+<div class="badge">SOCIAL</div><h2>Instagram</h2>
+<p>تابع حسابي على Instagram</p>
+<div class="contact-link">alkh_osama</div>
+<a class="action" href="https://www.instagram.com/alkh_osama?stkn=c3lsanR6bXFqbWU3" target="_blank" rel="noopener">Open Instagram</a>
+</div>
+</section>
+
+<section id="whatsapp" class="page whatsapp">
+<button class="back" data-page="home">← Back</button>
+<div class="panel">
+<div class="badge">CONTACT</div><h2>WhatsApp</h2>
+<p>للتواصل معي عبر واتساب</p>
+<div class="contact-link">+696 885 931 963</div>
+<a class="action" href="https://wa.me/696885931963" target="_blank" rel="noopener">Open WhatsApp</a>
+</div>
+</section>
+
+<section id="pubg" class="page pubg">
+<button class="back" data-page="home">← Back</button>
+<div class="panel">
+<div class="badge">PLAYER PROFILE</div><h2>PUBG MOBILE</h2>
+<p>Your Player ID</p>
+<div class="id" id="pubgId">51941231902</div>
+<button class="action" id="copyId">Copy ID</button>
+</div>
+</section>
+
+
+<section id="games" class="page">
+<button class="back" data-page="home">← Back</button>
+<div class="games-panel">
+  <div class="badge" style="width:max-content;margin:auto">GAMING ARCHIVE</div>
+  <h2 class="games-title">Games I Completed</h2>
+  <div class="games-sub">My PC gaming journey</div>
+
+  <div class="games-grid">
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/214630/header.jpg"><b>Call of Duty: Black Ops</b><span>BO1 & BO2</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/1238840/header.jpg"><b>Battlefield</b><span>BF1 · BF2 · BF3 · BF4</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/976310/header.jpg"><b>Mortal Kombat</b><span>MK4 · MK11</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/109610/header.jpg"><b>EA SPORTS FC</b><span>FC 12 · FC 23</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/770240/header.jpg"><b>PES</b><span>PES 2006 · PES 2017 · PES 2019</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/35140/header.jpg"><b>Ninja Turtles</b><span>1 & 2</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/42640/header.jpg"><b>Blur</b><span>Racing</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/12920/header.jpg"><b>Need for Speed</b><span>Underground 1 & 2</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/115300/header.jpg"><b>Call of Duty: MW3</b><span>Modern Warfare 3</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/47920/header.jpg"><b>Need for Speed: Shift 2 Unleashed</b><span>Racing</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/header.jpg"><b>Forza Horizon 5</b><span>Racing</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/107410/header.jpg"><b>Arma 3</b><span>Military simulation</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/271590/header.jpg"><b>Grand Theft Auto</b><span>Vice City · GTA III · GTA IV · GTA V · San Andreas</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/10/header.jpg"><b>Counter-Strike</b><span>CS 1.4</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/1672970/header.jpg"><b>Minecraft</b><span>26.3 · Fabric · Modded</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/47790/header.jpg"><b>Medal of Honor</b><span>MOH</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/header.jpg"><b>Red Dead Redemption 2</b><span>RDR2</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/50130/header.jpg"><b>Mafia II</b><span>Mafia 2</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/220240/header.jpg"><b>Far Cry</b><span>Far Cry 1 & 3</span></div>
+    <div class="game" data-img="https://cdn.cloudflare.steamstatic.com/steam/apps/238090/header.jpg"><b>Sniper Elite</b><span>Sniper Elite 1 · 2 · 3</span></div>
+  </div>
+
+</div>
+</section>
+
+<div class="game-preview" id="gamePreview"><img id="gamePreviewImg" alt=""><div class="preview-title" id="gamePreviewTitle"></div></div>
+<div class="corner">OMK 1120</div>
+
+<script>
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d'),glow=document.getElementById('glow');
+let W,H,particles=[];
+function resize(){W=canvas.width=innerWidth*devicePixelRatio;H=canvas.height=innerHeight*devicePixelRatio;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+function init(){particles=Array.from({length:Math.min(95,Math.floor(innerWidth/10))},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.7+.3,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.6+.15}))}
+function draw(){ctx.clearRect(0,0,innerWidth,innerHeight);for(const p of particles){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=innerWidth;if(p.x>innerWidth)p.x=0;if(p.y<0)p.y=innerHeight;if(p.y>innerHeight)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(92,190,255,${p.a})`;ctx.fill()}requestAnimationFrame(draw)}
+resize();init();draw();addEventListener('resize',()=>{resize();init()});
+addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px'});
+const menuBtn=document.getElementById('menuBtn'),menu=document.getElementById('menu');
+menuBtn.onclick=()=>{menuBtn.classList.toggle('open');menu.classList.toggle('show')};
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');menuBtn.classList.remove('open');menu.classList.remove('show')}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>showPage(el.dataset.page)));
+
+const gamePreview=document.getElementById('gamePreview');
+const gamePreviewImg=document.getElementById('gamePreviewImg');
+const gamePreviewTitle=document.getElementById('gamePreviewTitle');
+document.querySelectorAll('.game[data-img]').forEach(game=>{
+  game.addEventListener('mouseenter',e=>{
+    gamePreviewImg.src=game.dataset.img;
+    gamePreviewTitle.textContent=game.querySelector('b')?.textContent || '';
+    gamePreview.classList.add('show');
+  });
+  game.addEventListener('mousemove',e=>{
+    const pad=18, w=260, h=146;
+    let x=e.clientX+22, y=e.clientY+22;
+    if(x+w>innerWidth-pad) x=e.clientX-w-22;
+    if(y+h>innerHeight-pad) y=e.clientY-h-22;
+    gamePreview.style.left=Math.max(pad,x)+'px';
+    gamePreview.style.top=Math.max(pad,y)+'px';
+  });
+  game.addEventListener('mouseleave',()=>gamePreview.classList.remove('show'));
+  game.addEventListener('click',()=>{
+    // On phones there is no hover; tapping a game briefly shows its artwork.
+    if(matchMedia('(hover: none)').matches){
+      gamePreviewImg.src=game.dataset.img;
+      gamePreviewTitle.textContent=game.querySelector('b')?.textContent || '';
+      gamePreview.style.left='50%';
+      gamePreview.style.top='50%';
+      gamePreview.style.transform='translate(-50%,-50%) scale(1)';
+      gamePreview.classList.add('show');
+      setTimeout(()=>{
+        gamePreview.classList.remove('show');
+        gamePreview.style.transform='';
+      },1800);
+    }
+  });
+});
+gamePreviewImg.addEventListener('error',()=>{
+  gamePreviewTitle.textContent += ' • image unavailable';
+});
+
+document.getElementById('copyId').onclick=async()=>{await navigator.clipboard.writeText('51941231902');document.getElementById('copyId').textContent='Copied ✓';setTimeout(()=>document.getElementById('copyId').textContent='Copy ID',1400)};
+</script>
+</body>
+</html>
